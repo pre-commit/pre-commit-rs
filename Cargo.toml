@@ -6,4 +6,11 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+anyhow = "1.0.68"
 clap = { version = "4.0.32", features = ["derive"] }
+dirs = "4.0.0"
+faccess = "0.2.4"
+fslock = "0.2.1"
+indoc = "1.0.8"
+rusqlite = { version = "0.28.0", features = ["bundled"] }
+tempfile = "3.3.0"
