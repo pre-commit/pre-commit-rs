@@ -12,5 +12,6 @@ dirs = "4.0.0"
 faccess = "0.2.4"
 fslock = "0.2.1"
 indoc = "1.0.8"
+rm_rf = "0.6.2"
 rusqlite = { version = "0.28.0", features = ["bundled"] }
 tempfile = "3.3.0"
