@@ -1,5 +1,6 @@
 use clap::{Parser, Subcommand};
 
+mod clientlib;
 mod commands;
 mod store;
 
@@ -17,6 +18,8 @@ enum Commands {
     Clean,
     /// Produce a sample .pre-commit-config.yaml file
     SampleConfig,
+    /// Validate .pre-commit-hooks.yaml files'
+    ValidateManifest { filenames: Vec<String> },
 }
 
 fn main() -> anyhow::Result<()> {
@@ -36,6 +39,9 @@ fn main() -> anyhow::Result<()> {
         }
         Some(Commands::SampleConfig) => {
             commands::sample_config::cmd();
+        }
+        Some(Commands::ValidateManifest { filenames }) => {
+            commands::validate_manifest::cmd(filenames)?;
         }
         None => {
             println!("default")
