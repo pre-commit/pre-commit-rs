@@ -331,10 +331,20 @@ dependencies = [
  "faccess",
  "fslock",
  "indoc",
+ "pre-commit-rs-derive",
  "rm_rf",
  "rusqlite",
  "serde_yaml",
  "tempfile",
+]
+
+[[package]]
+name = "pre-commit-rs-derive"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]

@@ -1,8 +1,9 @@
 use cfgv::Cfgv;
 use cfgv_derive::Cfgv;
+use pre_commit_rs_derive::make_config_hook;
 
-#[derive(Debug, Cfgv)]
 #[allow(dead_code)]
+#[derive(Debug, Cfgv)]
 pub(crate) struct ManifestHook {
     #[cfgv_id]
     id: String,
@@ -47,4 +48,43 @@ pub(crate) struct ManifestHook {
     stages: Vec<String>,
     #[cfgv_default]
     verbose: bool,
+}
+
+#[allow(dead_code)]
+#[make_config_hook]
+pub(crate) struct ConfigHook;
+
+#[allow(dead_code)]
+#[derive(Cfgv, Debug)]
+pub(crate) struct Repo {
+    #[cfgv_id]
+    repo: String,
+    rev: String,
+    hooks: Vec<ConfigHook>,
+}
+
+#[allow(dead_code)]
+#[derive(Cfgv, Debug)]
+pub(crate) struct Config {
+    repos: Vec<Repo>,
+
+    #[cfgv_default_expr(vec!["pre-commit".into()])]
+    default_install_hook_types: Vec<String>,
+
+    // TODO: idk what this should be
+    // default_language_version: ...,
+
+    // TODO: idk how to set the default nicely
+    // #[cfgv_default_expr=...]
+    // default_stages: Vec<String>>,
+    #[cfgv_default]
+    files: String,
+    #[cfgv_default_expr("^$".into())]
+    exclude: String,
+    #[cfgv_default]
+    fail_fast: bool,
+    #[cfgv_default_expr("0".into())]
+    minimum_pre_commit_version: String,
+    // TODO: allow any mapping here
+    // ci: ...,
 }

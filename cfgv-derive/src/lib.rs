@@ -113,7 +113,7 @@ fn _struct(
 
     let id_code = if let Some((f_name, code)) = id {
         let ctx_str_1 = format!("At {name}({f_name}=MISSING)");
-        let ctx_str_2 = format!("At {name}({f_name}={{}})");
+        let ctx_str_2 = format!("At {name}({f_name}={{:?}})");
         quote! {
             ctx.push(#ctx_str_1.into());
             #code

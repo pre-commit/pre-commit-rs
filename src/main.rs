@@ -18,7 +18,9 @@ enum Commands {
     Clean,
     /// Produce a sample .pre-commit-config.yaml file
     SampleConfig,
-    /// Validate .pre-commit-hooks.yaml files'
+    /// Validate .pre-commit-config.yaml files
+    ValidateConfig { filenames: Vec<String> },
+    /// Validate .pre-commit-hooks.yaml files
     ValidateManifest { filenames: Vec<String> },
 }
 
@@ -39,6 +41,9 @@ fn main() -> anyhow::Result<()> {
         }
         Some(Commands::SampleConfig) => {
             commands::sample_config::cmd();
+        }
+        Some(Commands::ValidateConfig { filenames }) => {
+            commands::validate_config::cmd(filenames)?;
         }
         Some(Commands::ValidateManifest { filenames }) => {
             commands::validate_manifest::cmd(filenames)?;
