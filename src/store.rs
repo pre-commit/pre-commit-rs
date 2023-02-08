@@ -1,13 +1,14 @@
 use std::env;
 use std::ffi::OsString;
 use std::fs;
-use std::path::PathBuf;
+use std::ops::Not;
+use std::path;
 
 fn _store_dir_impl(
-    pre_commit_home: Option<PathBuf>,
-    xdg_cache_home: Option<PathBuf>,
-    home: Option<PathBuf>,
-) -> anyhow::Result<PathBuf> {
+    pre_commit_home: Option<path::PathBuf>,
+    xdg_cache_home: Option<path::PathBuf>,
+    home: Option<path::PathBuf>,
+) -> anyhow::Result<path::PathBuf> {
     if let Some(ret) = pre_commit_home {
         Ok(ret)
     } else if let Some(mut ret) = xdg_cache_home {
@@ -22,12 +23,12 @@ fn _store_dir_impl(
     }
 }
 
-fn _to_buf(s: Option<OsString>) -> Option<PathBuf> {
-    s.and_then(|s| if s.is_empty() { None } else { Some(s) })
-        .map(PathBuf::from)
+fn _to_buf(s: Option<OsString>) -> Option<path::PathBuf> {
+    s.and_then(|s| s.is_empty().not().then_some(s))
+        .map(path::PathBuf::from)
 }
 
-fn _store_dir() -> anyhow::Result<PathBuf> {
+fn _store_dir() -> anyhow::Result<path::PathBuf> {
     _store_dir_impl(
         _to_buf(env::var_os("PRE_COMMIT_HOME")),
         _to_buf(env::var_os("XDG_CACHE_HOME")),
@@ -36,18 +37,18 @@ fn _store_dir() -> anyhow::Result<PathBuf> {
 }
 
 #[cfg(windows)]
-fn _readonly(d: &PathBuf) -> bool {
+fn _readonly(d: &path::PathBuf) -> bool {
     false
 }
 
 #[cfg(not(windows))]
-fn _readonly(d: &PathBuf) -> bool {
+fn _readonly(d: &path::PathBuf) -> bool {
     use faccess::{AccessMode, PathExt};
-    d.exists() && !d.access(AccessMode::WRITE).is_ok()
+    d.exists() && d.access(AccessMode::WRITE).is_err()
 }
 
 pub(crate) struct Store {
-    pub(crate) directory: PathBuf,
+    pub(crate) directory: path::PathBuf,
     pub(crate) readonly: bool,
 }
 
@@ -65,7 +66,7 @@ impl Store {
         Ok(lock)
     }
 
-    fn _db_path(&self) -> PathBuf {
+    fn _db_path(&self) -> path::PathBuf {
         self.directory.join("db.db")
     }
 
@@ -124,5 +125,18 @@ impl Store {
         };
         ret._ensure_created()?;
         Ok(ret)
+    }
+
+    pub(crate) fn mark_config_used(&self, path: &str) -> anyhow::Result<()> {
+        if self.readonly {
+            return Ok(());
+        }
+        if let Ok(p) = fs::canonicalize(path) {
+            let pstr = p.to_string_lossy();
+            let conn = rusqlite::Connection::open(self._db_path())?;
+            self._create_config_table(&conn)?;
+            conn.execute("INSERT OR IGNORE INTO configs VALUES (?)", (pstr,))?;
+        }
+        Ok(())
     }
 }

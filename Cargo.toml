@@ -19,3 +19,5 @@ tempfile = "3.3.0"
 cfgv = { path = "cfgv" }
 cfgv-derive = { path = "cfgv-derive" }
 pre-commit-rs-derive = { path = "pre-commit-rs-derive" }
+git-repository = "0.33.0"
+pathdiff = "0.2.1"

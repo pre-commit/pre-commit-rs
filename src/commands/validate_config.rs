@@ -1,5 +1,5 @@
-pub(crate) fn cmd(filenames: &Vec<String>) -> anyhow::Result<()> {
-    for filename in filenames {
+pub(crate) fn cmd(cmd: crate::ValidateFiles) -> anyhow::Result<()> {
+    for filename in cmd.filenames {
         cfgv::load_file::<crate::clientlib::Config>(&filename)?;
     }
     Ok(())

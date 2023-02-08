@@ -11,6 +11,7 @@ repos:
     -   id: check-added-large-files
 ";
 
-pub(crate) fn cmd() {
-    print!("{SAMPLE_CONFIG}")
+pub(crate) fn cmd() -> anyhow::Result<()> {
+    print!("{SAMPLE_CONFIG}");
+    Ok(())
 }
