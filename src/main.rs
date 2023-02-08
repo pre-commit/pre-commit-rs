@@ -244,7 +244,7 @@ fn _chdir_to_git_root(
     config: String,
 ) -> anyhow::Result<(String, git_repository::Repository, Option<Chdir>)> {
     let orig = env::current_dir()?;
-    let repo = git::repo()?;
+    let repo = git::repo(&orig)?;
     let new = repo.work_dir().unwrap();
 
     if orig == new {
