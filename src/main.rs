@@ -114,7 +114,8 @@ struct Run {
     #[arg(long)]
     local_branch: Option<String>,
     /// Filename to check when running during `commit-msg`
-    #[arg(long)]
+    #[arg(long, requires = "hook_stage")]
+    #[arg(required_if_eq_any([("hook_stage", "commit-msg"), ("hook_stage", "prepare-commit-msg")]))]
     commit_msg_filename: Option<String>,
     /// Source of the commit message (typically the second argument to
     /// .git/hooks/prepare-commit-msg)
