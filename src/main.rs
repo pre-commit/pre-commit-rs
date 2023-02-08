@@ -96,13 +96,13 @@ struct Run {
     /// For `pre-push` hooks this represents the branch you are pushing to.
     /// For `post-checkout` hooks this represents the branch that was
     /// previously checked out.
-    #[arg(long, short_alias = 's', alias = "source")]
+    #[arg(long, short_alias = 's', alias = "source", requires = "to_ref")]
     from_ref: Option<String>,
     /// (for usage with `--from-ref`) -- this option represents the destination
     /// ref in a `from_ref...to_ref` diff expressions.
     /// For `pre-push` hooks this represents the branch being pushed.
     /// For `post-checkout` hooks this represents the branch that is now checked out.
-    #[arg(long, short_alias = 'o', alias = "origin")]
+    #[arg(long, short_alias = 'o', alias = "origin", requires = "from_ref")]
     to_ref: Option<String>,
     /// The stage during which the hook is fired
     #[arg(value_enum, long, default_value_t = Stage::Commit)]
