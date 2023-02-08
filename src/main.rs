@@ -240,14 +240,20 @@ where
         .into()
 }
 
-fn _chdir_to_git_root(config: String) -> anyhow::Result<(String, Option<Chdir>)> {
+fn _chdir_to_git_root(
+    config: String,
+) -> anyhow::Result<(String, git_repository::Repository, Option<Chdir>)> {
     let orig = env::current_dir()?;
-    let new = git::root()?;
+    let repo = git::repo()?;
+    let new = repo.work_dir().unwrap();
 
     if orig == new {
-        Ok((config, None))
+        Ok((config, repo, None))
     } else {
-        let chdir = Chdir { orig, new };
+        let chdir = Chdir {
+            orig,
+            new: new.to_path_buf(),
+        };
         let config = if path::Path::new(&config).exists() {
             _chdir_path(config, &chdir)
         } else {
@@ -255,7 +261,7 @@ fn _chdir_to_git_root(config: String) -> anyhow::Result<(String, Option<Chdir>)>
         };
 
         env::set_current_dir(&chdir.new)?;
-        Ok((config, Some(chdir)))
+        Ok((config, repo, Some(chdir)))
     }
 }
 
@@ -300,7 +306,7 @@ fn main() -> anyhow::Result<()> {
         _ => (),
     }
 
-    let (config, chdir) = _chdir_to_git_root(res.config)?;
+    let (config, repo, chdir) = _chdir_to_git_root(res.config)?;
     store.mark_config_used(&config)?;
 
     // You can check for the existence of subcommands, and if found use their
@@ -322,7 +328,7 @@ fn main() -> anyhow::Result<()> {
             if let Some(chdir) = chdir {
                 _adjust_run(&mut cmd, &chdir);
             }
-            println!("run! {:?} {:?}", cmd.files, cmd.hook_stage);
+            commands::run::cmd(config, repo, store, cmd)
         }
         Commands::TryRepo(mut cmd) => {
             if let Some(chdir) = chdir {
@@ -339,5 +345,4 @@ fn main() -> anyhow::Result<()> {
         }
         _ => unreachable!(),
     }
-    Ok(())
 }
