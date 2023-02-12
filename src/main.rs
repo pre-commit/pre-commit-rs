@@ -4,7 +4,9 @@ use std::path;
 
 mod clientlib;
 mod commands;
+mod env_ext;
 mod git;
+mod staged_files_only;
 mod store;
 
 #[derive(ValueEnum, Clone, Debug)]

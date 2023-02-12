@@ -1,8 +1,7 @@
-use std::env;
-use std::ffi::OsString;
 use std::fs;
-use std::ops::Not;
 use std::path;
+
+use crate::env_ext;
 
 fn _store_dir_impl(
     pre_commit_home: Option<path::PathBuf>,
@@ -23,15 +22,10 @@ fn _store_dir_impl(
     }
 }
 
-fn _to_buf(s: Option<OsString>) -> Option<path::PathBuf> {
-    s.and_then(|s| s.is_empty().not().then_some(s))
-        .map(path::PathBuf::from)
-}
-
 fn _store_dir() -> anyhow::Result<path::PathBuf> {
     _store_dir_impl(
-        _to_buf(env::var_os("PRE_COMMIT_HOME")),
-        _to_buf(env::var_os("XDG_CACHE_HOME")),
+        env_ext::var_os_nonempty("PRE_COMMIT_HOME").map(path::PathBuf::from),
+        env_ext::var_os_nonempty("XDG_CACHE_HOME").map(path::PathBuf::from),
         dirs::home_dir(),
     )
 }
