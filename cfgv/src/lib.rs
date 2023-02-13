@@ -26,7 +26,7 @@ pub fn type_name(v: &Value) -> String {
     }
 }
 
-pub fn ctx_s<S: std::fmt::Display>(ctx: &Vec<String>, msg: S) -> String {
+pub fn ctx_s<S: std::fmt::Display>(ctx: &[String], msg: S) -> String {
     let start = ctx
         .iter()
         .map(|s| format!("==> {s}"))
@@ -40,7 +40,7 @@ impl Cfgv for bool {
         if let Value::Bool(n) = v {
             Ok(*n)
         } else {
-            anyhow::bail!(ctx_s(ctx, format!("Expected bool, got {}", type_name(&v))))
+            anyhow::bail!(ctx_s(ctx, format!("Expected bool, got {}", type_name(v))))
         }
     }
 }
@@ -49,10 +49,10 @@ impl Cfgv for i64 {
     fn cfgv_validate(ctx: &mut Vec<String>, v: &Value) -> anyhow::Result<Self> {
         if let Value::Number(n) = v {
             n.as_i64().ok_or_else(|| {
-                anyhow::anyhow!(ctx_s(ctx, format!("Expected int, got {}", type_name(&v))))
+                anyhow::anyhow!(ctx_s(ctx, format!("Expected int, got {}", type_name(v))))
             })
         } else {
-            anyhow::bail!(ctx_s(ctx, format!("Expected int, got {}", type_name(&v))))
+            anyhow::bail!(ctx_s(ctx, format!("Expected int, got {}", type_name(v))))
         }
     }
 }
@@ -62,7 +62,7 @@ impl Cfgv for String {
         if let Value::String(s) = v {
             Ok(s.clone())
         } else {
-            anyhow::bail!(ctx_s(ctx, format!("Expected str, got {}", type_name(&v))));
+            anyhow::bail!(ctx_s(ctx, format!("Expected str, got {}", type_name(v))));
         }
     }
 }
@@ -73,14 +73,14 @@ impl<T: Cfgv> Cfgv for Vec<T> {
             let mut ret: Vec<T> = Vec::new();
 
             for (i, val) in lst.iter().enumerate() {
-                ctx.push(format!("At index {i}").into());
-                ret.push(T::cfgv_validate(ctx, &val)?);
+                ctx.push(format!("At index {i}"));
+                ret.push(T::cfgv_validate(ctx, val)?);
                 ctx.pop();
             }
 
             Ok(ret)
         } else {
-            anyhow::bail!(ctx_s(ctx, format!("Expected list, got {}", type_name(&v))))
+            anyhow::bail!(ctx_s(ctx, format!("Expected list, got {}", type_name(v))))
         }
     }
 }
