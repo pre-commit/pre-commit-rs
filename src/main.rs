@@ -1,4 +1,5 @@
 use clap::{Args, Parser, Subcommand, ValueEnum};
+use pre_commit_rs_derive::PreCommitEnv;
 use std::env;
 use std::path;
 
@@ -77,7 +78,11 @@ struct Install {
     allow_missing_config: bool,
 }
 
-#[derive(Args, Debug)]
+trait PreCommitEnv {
+    fn set_pre_commit_env_vars(&self);
+}
+
+#[derive(Args, Debug, PreCommitEnv)]
 #[clap(group = clap::ArgGroup::new("file-args").multiple(false))]
 struct Run {
     /// A single hook-id to run
@@ -99,21 +104,27 @@ struct Run {
     /// For `post-checkout` hooks this represents the branch that was
     /// previously checked out.
     #[arg(long, short_alias = 's', alias = "source", requires = "to_ref")]
+    #[pre_commit_env_var("PRE_COMMIT_ORIGIN")] // deprecated name
+    #[pre_commit_env_var("PRE_COMMIT_FROM_REF")]
     from_ref: Option<String>,
     /// (for usage with `--from-ref`) -- this option represents the destination
     /// ref in a `from_ref...to_ref` diff expressions.
     /// For `pre-push` hooks this represents the branch being pushed.
     /// For `post-checkout` hooks this represents the branch that is now checked out.
     #[arg(long, short_alias = 'o', alias = "origin", requires = "from_ref")]
+    #[pre_commit_env_var("PRE_COMMIT_SOURCE")] // deprecated name
+    #[pre_commit_env_var("PRE_COMMIT_TO_REF")]
     to_ref: Option<String>,
     /// The stage during which the hook is fired
     #[arg(value_enum, long, default_value_t = Stage::Commit)]
     hook_stage: Stage,
     /// Remote branch ref used by `git push`
     #[arg(long)]
+    #[pre_commit_env_var("PRE_COMMIT_REMOTE_BRANCH")]
     remote_branch: Option<String>,
     /// Local branch ref used by `git push`
     #[arg(long)]
+    #[pre_commit_env_var("PRE_COMMIT_LOCAL_BRANCH")]
     local_branch: Option<String>,
     /// Filename to check when running during `commit-msg`
     #[arg(long, requires = "hook_stage")]
@@ -123,29 +134,36 @@ struct Run {
     /// Source of the commit message (typically the second argument to
     /// .git/hooks/prepare-commit-msg)
     #[arg(long)]
+    #[pre_commit_env_var("PRE_COMMIT_COMMIT_MSG_SOURCE")]
     prepare_commit_message_source: Option<String>,
     /// Commit object name (typically the third argument to
     /// .git/hooks/prepare-commit-msg)
     #[arg(long)]
+    #[pre_commit_env_var("PRE_COMMIT_COMMIT_OBJECT_NAME")]
     commit_object_name: Option<String>,
     /// Remote name used by `git push`
     #[arg(long)]
+    #[pre_commit_env_var("PRE_COMMIT_REMOTE_NAME")]
     remote_name: Option<String>,
     /// Remote url used by `git push`
     #[arg(long)]
+    #[pre_commit_env_var("PRE_COMMIT_REMOTE_URL")]
     remote_url: Option<String>,
     /// Indicates whether the checkout was a branch checkout
     /// (changing branchesm, flag=1) or a file checkout (retrieving a file from
     /// the index, flag=0)]
     #[arg(long)] // TODO: can only be '0' or '1'?
+    #[pre_commit_env_var("PRE_COMMIT_CHECKOUT_TYPE")]
     checkout_type: Option<String>,
     /// During a post-merge hook, indicates whether the merge was a squash
     /// merge
     #[arg(long)] // TODO: can only bo '0' or '1'?
+    #[pre_commit_env_var("PRE_COMMIT_IS_SQUASH_MERGE")]
     is_squash_merge: Option<String>,
     /// During a post-rewrite hook, specifies the command that invoked the
     /// rewrite
     #[arg(long)]
+    #[pre_commit_env_var("PRE_COMMIT_REWRITE_COMMAND")]
     rewrite_command: Option<String>,
 }
 

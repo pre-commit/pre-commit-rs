@@ -24,7 +24,7 @@ fn _unpack_option(t: &syn::Type) -> Option<&syn::Type> {
                     }
 
                     match &args[0] {
-                        syn::GenericArgument::Type(t) => Some(&t),
+                        syn::GenericArgument::Type(t) => Some(t),
                         _ => None,
                     }
                 }
@@ -37,13 +37,10 @@ fn _unpack_option(t: &syn::Type) -> Option<&syn::Type> {
 
 fn _get_attr<'a>(f: &'a syn::Field, name: &str) -> Option<&'a syn::Attribute> {
     for attr in &f.attrs {
-        match attr.path.get_ident() {
-            Some(ident) => {
-                if ident == name {
-                    return Some(attr);
-                }
+        if let Some(ident) = attr.path.get_ident() {
+            if ident == name {
+                return Some(attr);
             }
-            _ => (),
         }
     }
     None
