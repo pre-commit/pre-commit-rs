@@ -252,10 +252,7 @@ struct Chdir {
     new: path::PathBuf,
 }
 
-fn _chdir_path<P>(p: P, chdir: &Chdir) -> String
-where
-    P: std::convert::AsRef<std::path::Path>,
-{
+fn _chdir_path<P: AsRef<path::Path>>(p: P, chdir: &Chdir) -> String {
     pathdiff::diff_paths(chdir.orig.join(p), &chdir.new)
         .unwrap() // guaranteed chdir.new is abspath
         .to_string_lossy()

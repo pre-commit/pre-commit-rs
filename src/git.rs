@@ -2,10 +2,7 @@ use std::ffi;
 use std::path;
 use std::process;
 
-pub(crate) fn repo<P>(p: P) -> anyhow::Result<git_repository::Repository>
-where
-    P: AsRef<path::Path>,
-{
+pub(crate) fn repo<P: AsRef<path::Path>>(p: P) -> anyhow::Result<git_repository::Repository> {
     // TODO: handle Trust?
     let repo = git_repository::ThreadSafeRepository::discover_with_environment_overrides(p)?;
     if matches!(repo.kind(), git_repository::Kind::Bare) {
@@ -24,18 +21,11 @@ pub(crate) fn has_unmerged_paths(repo: &git_repository::Repository) -> anyhow::R
 }
 
 trait CmdKv {
-    fn arg_kv<K, V>(&mut self, k: K, v: V) -> &mut Self
-    where
-        K: AsRef<ffi::OsStr>,
-        V: AsRef<ffi::OsStr>;
+    fn arg_kv<K: AsRef<ffi::OsStr>, V: AsRef<ffi::OsStr>>(&mut self, k: K, v: V) -> &mut Self;
 }
 
 impl CmdKv for process::Command {
-    fn arg_kv<K, V>(&mut self, k: K, v: V) -> &mut Self
-    where
-        K: AsRef<ffi::OsStr>,
-        V: AsRef<ffi::OsStr>,
-    {
+    fn arg_kv<K: AsRef<ffi::OsStr>, V: AsRef<ffi::OsStr>>(&mut self, k: K, v: V) -> &mut Self {
         self.arg(k).arg(v)
     }
 }
