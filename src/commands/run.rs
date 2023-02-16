@@ -8,7 +8,7 @@ use crate::Stage;
 
 pub(crate) fn cmd(
     config: String,
-    repo: git_repository::Repository,
+    repo: gix::Repository,
     store: store::Store,
     cmd: Run,
 ) -> anyhow::Result<()> {
