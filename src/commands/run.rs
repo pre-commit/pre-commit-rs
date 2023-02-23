@@ -31,5 +31,14 @@ pub(crate) fn cmd(
 
     cmd.set_pre_commit_env_vars();
 
+    let mut ctx: Option<staged_files_only::StagedFilesOnly> = None;
+    if stash {
+        ctx = Some(staged_files_only::StagedFilesOnly::new(
+            &repo,
+            store.directory,
+        )?);
+    }
+
+    drop(ctx);
     Ok(())
 }
