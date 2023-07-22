@@ -15,7 +15,7 @@ indoc = "1.0.8"
 rm_rf = "0.6.2"
 rusqlite = { version = "0.28.0", features = ["bundled"] }
 serde_yaml = "0.9.16"
-tempfile = "3.3.0"
+tempfile = "3.4.0"
 cfgv = { path = "cfgv" }
 cfgv-derive = { path = "cfgv-derive" }
 pre-commit-rs-derive = { path = "pre-commit-rs-derive" }
