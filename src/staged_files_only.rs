@@ -2,6 +2,7 @@ use gix::index::entry::Flags;
 use gix::index::entry::Mode;
 use std::borrow::Borrow;
 use std::path;
+use std::process;
 
 pub(crate) const SKIP_POST_CHECKOUT: &str = "_PRE_COMMIT_SKIP_POST_CHECKOUT";
 
@@ -55,7 +56,54 @@ impl Drop for IntentToAdd<'_> {
     }
 }
 
+struct UnstagedCleared {
+    patch: String,
+}
+
+impl UnstagedCleared {
+    fn new<P: AsRef<path::Path>>(p: P) -> anyhow::Result<Option<Self>> {
+        // TODO: rewrite this using gix once easy
+        let tree_res = process::Command::new("git").arg("write-tree").output()?;
+        let tree = String::from_utf8(tree_res.stdout)?;
+
+        let diff = process::Command::new("git")
+            .args([
+                "diff-index",
+                "--ignore-submodules",
+                "--binary",
+                "--exit-code",
+                "--no-color",
+                "--no-ext-diff",
+            ])
+            .arg(tree.trim_end())
+            .arg("--")
+            .output()?;
+
+        if diff.status.success() {
+            Ok(None)
+        } else if diff.status.code() == Some(1) && diff.stdout.len() == 0 {
+            // due to behaviour (probably a bug?) in git with crlf endings and
+            // autocrlf set to either `true` or `input` somestimes git will
+            // refuse to show a crlf-only diff to us :(
+            Ok(None)
+        } else if diff.status.code() == Some(1) && diff.stdout.len() > 0 {
+            println!("todo: stash and such");
+            Ok(None)
+        } else {
+            // TODO: properly format this!
+            anyhow::bail!("failed to diff")
+        }
+    }
+}
+
+impl Drop for UnstagedCleared {
+    fn drop(&mut self) {}
+}
+
 pub(crate) struct StagedFilesOnly<'a> {
+    // ordering here is important, Drop teardown happens in declaration order
+    #[allow(dead_code)] // for Drop
+    unstaged_cleared: Option<UnstagedCleared>,
     #[allow(dead_code)] // for Drop
     intent_to_add: Option<IntentToAdd<'a>>,
 }
@@ -65,7 +113,12 @@ impl<'a> StagedFilesOnly<'a> {
         repo: &'a gix::Repository,
         p: P,
     ) -> anyhow::Result<Self> {
+        // ordering here is important
         let intent_to_add = IntentToAdd::new(repo)?;
-        Ok(StagedFilesOnly { intent_to_add })
+        let unstaged_cleared = UnstagedCleared::new(p)?;
+        Ok(StagedFilesOnly {
+            unstaged_cleared,
+            intent_to_add,
+        })
     }
 }
