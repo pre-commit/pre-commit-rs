@@ -12,28 +12,30 @@ mod store;
 
 #[derive(ValueEnum, Clone, Debug)]
 enum HookType {
+    CommitMsg,
+    PostCheckout,
+    PostCommit,
+    PostMerge,
+    PostRewrite,
     PreCommit,
     PreMergeCommit,
     PrePush,
+    PreRebase,
     PrepareCommitMsg,
-    CommitMsg,
-    PostCommit,
-    PostCheckout,
-    PostMerge,
-    PostRewrite,
 }
 
 #[derive(ValueEnum, Clone, Debug)]
 enum Stage {
-    Commit,
-    MergeCommit,
-    Push,
-    PrepareCommitMsg,
     CommitMsg,
-    PostCommit,
     PostCheckout,
+    PostCommit,
     PostMerge,
     PostRewrite,
+    PreCommit,
+    PreMergeCommit,
+    PrePush,
+    PreRebase,
+    PrepareCommitMsg,
     Manual,
 }
 
@@ -49,6 +51,9 @@ struct Autoupdate {
     /// Only update this repo -- may be specified multiple times
     #[arg(long = "repo")]
     repos: Vec<String>,
+    /// Number of threads to use.
+    #[arg(short = 't', long, default_value_t = 1)]
+    jobs: u32,
 }
 
 #[derive(Args, Debug)]
@@ -58,6 +63,9 @@ struct InitTemplatedir {
     /// Can be specified multiple times
     #[arg(short = 't', long)]
     hook_type: Vec<HookType>,
+    /// Assume cloned repos should have a `pre-commit` config.
+    #[arg(long)]
+    no_allow_missing_config: bool,
 }
 
 #[derive(Args, Debug)]
@@ -116,7 +124,7 @@ struct Run {
     #[pre_commit_env_var("PRE_COMMIT_TO_REF")]
     to_ref: Option<String>,
     /// The stage during which the hook is fired
-    #[arg(value_enum, long, default_value_t = Stage::Commit)]
+    #[arg(value_enum, long, default_value_t = Stage::PreCommit)]
     hook_stage: Stage,
     /// Remote branch ref used by `git push`
     #[arg(long)]
@@ -165,6 +173,16 @@ struct Run {
     #[arg(long)]
     #[pre_commit_env_var("PRE_COMMIT_REWRITE_COMMAND")]
     rewrite_command: Option<String>,
+    /// The upstream from which the series was forked.
+    #[arg(long)]
+    #[pre_commit_env_var("PRE_COMMIT_PRE_REBASE_UPSTREAM")]
+    #[arg(required_if_eq("hook_stage", "pre-rebase"))]
+    pre_rebase_upstream: Option<String>,
+    /// The branch being rebased.  This is not set when rebasing the current
+    /// branch.
+    #[arg(long)]
+    #[pre_commit_env_var("PRE_COMMIT_PRE_REBASE_BRANCH")]
+    pre_rebase_branch: Option<String>,
 }
 
 #[derive(Args, Debug)]
