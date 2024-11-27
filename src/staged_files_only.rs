@@ -1,5 +1,6 @@
 use gix::index::entry::Flags;
 use gix::index::entry::Mode;
+use gix::index::entry::Stage;
 use std::borrow::Borrow;
 use std::fs;
 use std::path;
@@ -89,7 +90,10 @@ impl Drop for IntentToAdd<'_> {
     fn drop(&mut self) {
         let mut idx = self.repo.open_index().unwrap();
         for (mode, p) in self.info.iter() {
-            if idx.entry_index_by_path_and_stage(p.borrow(), 0).is_some() {
+            if idx
+                .entry_index_by_path_and_stage(p.borrow(), Stage::Unconflicted)
+                .is_some()
+            {
                 continue;
             }
 

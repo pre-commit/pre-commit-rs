@@ -4,16 +4,16 @@ use std::process;
 
 pub(crate) fn repo<P: AsRef<path::Path>>(p: P) -> anyhow::Result<gix::Repository> {
     // TODO: handle Trust?
-    let repo = gix::ThreadSafeRepository::discover_with_environment_overrides(p)?;
-    if matches!(repo.kind(), gix::Kind::Bare) {
+    let repo = gix::ThreadSafeRepository::discover_with_environment_overrides(p)?.to_thread_local();
+    if matches!(repo.kind(), gix::repository::Kind::Bare) {
         anyhow::bail!("pre-commit needs a worktree, not a bare repo");
     }
-    Ok(repo.to_thread_local())
+    Ok(repo)
 }
 
 pub(crate) fn has_unmerged_paths(repo: &gix::Repository) -> anyhow::Result<bool> {
     for entry in repo.index()?.entries() {
-        if entry.flags.stage() != 0 {
+        if entry.flags.stage() != gix::index::entry::Stage::Unconflicted {
             return Ok(true);
         }
     }
