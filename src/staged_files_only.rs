@@ -144,7 +144,7 @@ impl UnstagedCleared {
                 .as_millis();
             let patch_filename = format!("patch{now}-{}", process::id());
             let patch_p = p.as_ref().join(patch_filename);
-            let patch = patch_p.to_str().unwrap().into();
+            let patch = patch_p.to_string_lossy().into();
 
             // TODO: logging / coloring
             println!("Unstaged files detected.");
