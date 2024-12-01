@@ -35,19 +35,13 @@ fn _discard_changes() -> anyhow::Result<()> {
 }
 
 fn _git_apply(patch: &str) -> anyhow::Result<()> {
-    let output = process::Command::new("git")
-        .args(["apply", "--whitespace=nowarn", patch])
-        .output()?;
+    let args = ["apply", "--whitespace=nowarn", patch];
+    let output = process::Command::new("git").args(args).output()?;
     // retry with autocrlf=false == see #570
     if !output.status.success() {
         let retried = process::Command::new("git")
-            .args([
-                "-c",
-                "core.autocrlf=false",
-                "apply",
-                "--whitespace=nowarn",
-                patch,
-            ])
+            .args(["-c", "core.autocrlf=false"])
+            .args(args)
             .output()?;
 
         if !retried.status.success() {
