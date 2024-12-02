@@ -3,51 +3,51 @@ use cfgv_derive::Cfgv;
 use pre_commit_rs_derive::make_config_hook;
 
 #[allow(dead_code)]
-#[derive(Debug, Cfgv)]
+#[derive(Cfgv, Debug)]
 pub(crate) struct ManifestHook {
     #[cfgv_id]
-    id: String,
-    name: String,
-    entry: String,
-    language: String,
+    pub(crate) id: String,
+    pub(crate) name: String,
+    pub(crate) entry: String,
+    pub(crate) language: String,
     #[cfgv_default]
-    alias: String,
+    pub(crate) alias: String,
 
     #[cfgv_default]
-    files: String,
+    pub(crate) files: String,
     #[cfgv_default_expr("^$".into())]
-    exclude: String,
+    pub(crate) exclude: String,
     #[cfgv_default_expr(vec!["file".into()])]
-    types: Vec<String>,
+    pub(crate) types: Vec<String>,
     #[cfgv_default]
-    types_or: Vec<String>,
+    pub(crate) types_or: Vec<String>,
     #[cfgv_default]
-    exclude_types: Vec<String>,
+    pub(crate) exclude_types: Vec<String>,
 
     #[cfgv_default]
-    additional_dependencies: Vec<String>,
+    pub(crate) additional_dependencies: Vec<String>,
     #[cfgv_default]
-    args: Vec<String>,
+    pub(crate) args: Vec<String>,
     #[cfgv_default]
-    always_run: bool,
+    pub(crate) always_run: bool,
     #[cfgv_default]
-    fail_fast: bool,
+    pub(crate) fail_fast: bool,
     #[cfgv_default_expr(true)]
-    pass_filenames: bool,
+    pub(crate) pass_filenames: bool,
     #[cfgv_default]
-    description: String,
+    pub(crate) description: String,
     #[cfgv_default_expr("default".into())]
-    language_version: String,
+    pub(crate) language_version: String,
     #[cfgv_default]
-    log_file: String,
+    pub(crate) log_file: String,
     #[cfgv_default_expr("0".into())]
-    minimum_pre_commit_version: String,
+    pub(crate) minimum_pre_commit_version: String,
     #[cfgv_default]
-    require_serial: bool,
+    pub(crate) require_serial: bool,
     #[cfgv_default]
-    stages: Vec<String>,
+    pub(crate) stages: Vec<String>,
     #[cfgv_default]
-    verbose: bool,
+    pub(crate) verbose: bool,
 }
 
 #[allow(dead_code)]

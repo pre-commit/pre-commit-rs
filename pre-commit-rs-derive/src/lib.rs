@@ -13,6 +13,8 @@ pub fn make_config_hook(
     let parsed = syn::parse_file(&contents).unwrap();
 
     let mut f_code: Vec<proc_macro2::TokenStream> = Vec::new();
+    let mut overlay_code: Vec<proc_macro2::TokenStream> = Vec::new();
+    let mut names: Vec<proc_macro2::TokenStream> = Vec::new();
     for item in parsed.items {
         if let syn::Item::Struct(syn::ItemStruct {
             ident,
@@ -24,14 +26,30 @@ pub fn make_config_hook(
                 for field in fields.named {
                     let f_ident = field.ident.as_ref().unwrap();
                     let f_tp = field.ty;
+
+                    names.push(quote! { #f_ident });
+
                     if f_ident == "id" {
                         f_code.push(quote! {
                             #[cfgv_id]
-                            #f_ident: #f_tp
+                            pub(crate) #f_ident: #f_tp
                         });
                     } else {
                         f_code.push(quote! {
-                            #f_ident: Option<#f_tp>
+                            pub(crate) #f_ident: Option<#f_tp>
+                        });
+                    }
+
+                    if f_ident == "id" {
+                        overlay_code.push(quote! {
+                            let #f_ident = hook.#f_ident.clone();
+                        });
+                    } else {
+                        overlay_code.push(quote! {
+                            let #f_ident = match &self.#f_ident {
+                                Some(val) => val.clone(),
+                                None => hook.#f_ident.clone(),
+                            };
                         });
                     }
                 }
@@ -45,8 +63,15 @@ pub fn make_config_hook(
 
     let ret = quote! {
         #[derive(Cfgv, Debug)]
-        struct #name {
+        pub(crate) struct #name {
             #(#f_code),*
+        }
+
+        impl #name {
+            pub(crate) fn overlay_on(&self, hook: &ManifestHook) -> ManifestHook {
+                #(#overlay_code)*
+                ManifestHook { #(#names),* }
+            }
         }
     };
     proc_macro::TokenStream::from(ret)
