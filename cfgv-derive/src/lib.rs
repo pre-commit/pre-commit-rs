@@ -1,3 +1,4 @@
+use heck::ToKebabCase;
 use quote::quote;
 
 fn _unpack_option(t: &syn::Type) -> Option<&syn::Type> {
@@ -44,6 +45,35 @@ fn _get_attr<'a>(f: &'a syn::Field, name: &str) -> Option<&'a syn::Attribute> {
         }
     }
     None
+}
+
+fn _enum(
+    name: &syn::Ident,
+    variants: &syn::punctuated::Punctuated<syn::Variant, syn::token::Comma>,
+) -> proc_macro2::TokenStream {
+    let mut choices: Vec<String> = Vec::new();
+    let mut m_code: Vec<proc_macro2::TokenStream> = Vec::new();
+    for variant in variants.iter() {
+        let variant_name = &variant.ident;
+        let value = variant.ident.to_string().to_kebab_case();
+        m_code.push(quote! {
+            #value => return Ok(Self::#variant_name),
+        });
+        choices.push(value);
+    }
+
+    let msg = format!("Expected one of {} but got: {{}}", choices.join(", "));
+    quote! {
+        impl Cfgv for #name {
+            fn cfgv_validate(ctx: &mut Vec<String>, v: &serde_yaml::Value) -> anyhow::Result<Self> {
+                let s = String::cfgv_validate(ctx, v)?;
+                match s.as_str() {
+                    #(#m_code)*
+                    _ => anyhow::bail!(cfgv::ctx_s(ctx, format!(#msg, s))),
+                }
+            }
+        }
+    }
 }
 
 fn _struct(
@@ -144,10 +174,13 @@ pub fn cfgv(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = syn::parse_macro_input!(input as syn::DeriveInput);
 
     match input.data {
+        syn::Data::Enum(syn::DataEnum { variants, .. }) => {
+            proc_macro::TokenStream::from(_enum(&input.ident, &variants))
+        }
         syn::Data::Struct(syn::DataStruct {
             fields: syn::Fields::Named(fields),
             ..
         }) => proc_macro::TokenStream::from(_struct(&input.ident, &fields.named)),
-        _ => panic!("need struct with named fields"),
+        _ => panic!("need enum or struct with named fields"),
     }
 }

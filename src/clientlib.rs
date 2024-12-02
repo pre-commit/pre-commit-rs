@@ -1,3 +1,4 @@
+use crate::Stage;
 use cfgv::Cfgv;
 use cfgv_derive::Cfgv;
 use pre_commit_rs_derive::make_config_hook;
@@ -45,7 +46,7 @@ pub(crate) struct ManifestHook {
     #[cfgv_default]
     pub(crate) require_serial: bool,
     #[cfgv_default]
-    pub(crate) stages: Vec<String>,
+    pub(crate) stages: Vec<Stage>,
     #[cfgv_default]
     pub(crate) verbose: bool,
 }
@@ -127,4 +128,8 @@ pub(crate) struct Config {
     minimum_pre_commit_version: String,
     // TODO: allow any mapping here
     // ci: ...,
+}
+
+pub(crate) fn load_config(filename: &str) -> anyhow::Result<Config> {
+    cfgv::load_file::<crate::clientlib::Config>(filename)
 }

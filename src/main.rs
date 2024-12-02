@@ -1,3 +1,5 @@
+use cfgv::Cfgv;
+use cfgv_derive::Cfgv;
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use pre_commit_rs_derive::PreCommitEnv;
 use std::env;
@@ -10,7 +12,7 @@ mod git;
 mod staged_files_only;
 mod store;
 
-#[derive(ValueEnum, Clone, Debug)]
+#[derive(Cfgv, Clone, Debug, ValueEnum)]
 enum HookType {
     CommitMsg,
     PostCheckout,
@@ -24,7 +26,7 @@ enum HookType {
     PrepareCommitMsg,
 }
 
-#[derive(ValueEnum, Clone, Debug)]
+#[derive(Cfgv, Clone, Debug, ValueEnum)]
 enum Stage {
     CommitMsg,
     PostCheckout,
