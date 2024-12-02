@@ -31,12 +31,12 @@ fn _store_dir() -> anyhow::Result<path::PathBuf> {
 }
 
 #[cfg(windows)]
-fn _readonly(d: &path::PathBuf) -> bool {
+fn _readonly(d: &path::Path) -> bool {
     false
 }
 
 #[cfg(not(windows))]
-fn _readonly(d: &path::PathBuf) -> bool {
+fn _readonly(d: &path::Path) -> bool {
     use faccess::{AccessMode, PathExt};
     d.exists() && d.access(AccessMode::WRITE).is_err()
 }
