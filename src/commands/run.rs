@@ -1,5 +1,7 @@
+use crate::clientlib;
 use crate::env_ext;
 use crate::git;
+use crate::repository;
 use crate::staged_files_only;
 use crate::store;
 use crate::PreCommitEnv;
@@ -35,9 +37,14 @@ pub(crate) fn cmd(
     if stash {
         ctx = Some(staged_files_only::StagedFilesOnly::new(
             &repo,
-            store.directory,
+            &store.directory,
         )?);
     }
+
+    let config = clientlib::load_config(&config)?;
+    let hooks = repository::all_hooks(config, &store);
+    dbg!(cmd.hook_stage);
+    dbg!(hooks);
 
     drop(ctx);
     Ok(())

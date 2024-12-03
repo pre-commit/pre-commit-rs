@@ -59,25 +59,25 @@ pub(crate) struct ConfigHook;
 #[derive(Cfgv, Debug)]
 pub(crate) struct LocalRepo {
     #[cfgv_id]
-    repo: String,
-    hooks: Vec<ManifestHook>,
+    pub(crate) repo: String,
+    pub(crate) hooks: Vec<ManifestHook>,
 }
 
 #[allow(dead_code)]
 #[derive(Cfgv, Debug)]
 pub(crate) struct MetaRepo {
     #[cfgv_id]
-    repo: String,
-    hooks: Vec<ConfigHook>,
+    pub(crate) repo: String,
+    pub(crate) hooks: Vec<ConfigHook>,
 }
 
 #[allow(dead_code)]
 #[derive(Cfgv, Debug)]
 pub(crate) struct RemoteRepo {
     #[cfgv_id]
-    repo: String,
-    rev: String,
-    hooks: Vec<ConfigHook>,
+    pub(crate) repo: String,
+    pub(crate) rev: String,
+    pub(crate) hooks: Vec<ConfigHook>,
 }
 
 #[allow(dead_code)]
@@ -107,7 +107,7 @@ impl Cfgv for Repo {
 #[allow(dead_code)]
 #[derive(Cfgv, Debug)]
 pub(crate) struct Config {
-    repos: Vec<Repo>,
+    pub(crate) repos: Vec<Repo>,
 
     #[cfgv_default_expr(vec!["pre-commit".into()])]
     default_install_hook_types: Vec<String>,

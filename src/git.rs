@@ -44,3 +44,63 @@ pub(crate) fn has_unstaged_config(repo: &gix::Repository, config: &str) -> anyho
 
     Ok(retc == 1)
 }
+
+// from `git rev-parse --local-env-vars`
+// TODO: use gix for this?
+const _LOCAL_ENV_VARS: &[&str] = &[
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_COMMON_DIR",
+    "GIT_CONFIG",
+    "GIT_CONFIG_COUNT",
+    "GIT_CONFIG_PARAMETERS",
+    "GIT_DIR",
+    "GIT_GRAFT_FILE",
+    "GIT_IMPLICIT_WORK_TREE",
+    "GIT_INDEX_FILE",
+    "GIT_INTERNAL_SUPER_PREFIX",
+    "GIT_NO_REPLACE_OBJECTS",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_PREFIX",
+    "GIT_REPLACE_REF_BASE",
+    "GIT_SHALLOW_FILE",
+    "GIT_WORK_TREE",
+];
+
+pub(crate) trait GitNoLocalEnv {
+    fn git_no_local_env(&mut self) -> &mut Self;
+}
+
+impl GitNoLocalEnv for process::Command {
+    fn git_no_local_env(&mut self) -> &mut Self {
+        for var in _LOCAL_ENV_VARS {
+            self.env_remove(var);
+        }
+        self
+    }
+}
+
+pub(crate) fn git_no_fs_monitor() -> process::Command {
+    let mut ret = process::Command::new("git");
+    ret.args(["-c", "core.useBuiltinFSMonitor=false"]);
+    ret
+}
+
+pub(crate) fn init_repo(path: &str, remote: &str) -> anyhow::Result<()> {
+    // TODO:
+    // if os.path.isdir(remote):
+    //      remote = os.path.abspath(remote)
+
+    // TODO: add this to gix?
+    // avoid the user's template so that hooks do not recurse
+    git_no_fs_monitor()
+        .git_no_local_env()
+        .args(["init", "--template=", path])
+        .output()?;
+    git_no_fs_monitor()
+        .git_no_local_env()
+        .current_dir(path)
+        .args(["remote", "add", "origin", remote])
+        .output()?;
+
+    Ok(())
+}

@@ -9,6 +9,7 @@ mod clientlib;
 mod commands;
 mod env_ext;
 mod git;
+mod repository;
 mod staged_files_only;
 mod store;
 

@@ -41,6 +41,29 @@ fn _readonly(d: &path::Path) -> bool {
     d.exists() && d.access(AccessMode::WRITE).is_err()
 }
 
+trait MakeRepo {
+    fn make(&self, dest: &str) -> anyhow::Result<()>;
+}
+
+struct LocalRepoMaker {}
+
+impl MakeRepo for LocalRepoMaker {
+    fn make(&self, dest: &str) -> anyhow::Result<()> {
+        anyhow::bail!("not implemented!");
+    }
+}
+
+struct ClonedRepoMaker<'a> {
+    repo: &'a str,
+    rev: &'a str,
+}
+
+impl MakeRepo for ClonedRepoMaker<'_> {
+    fn make(&self, dest: &str) -> anyhow::Result<()> {
+        anyhow::bail!("not implemented!");
+    }
+}
+
 pub(crate) struct Store {
     pub(crate) directory: path::PathBuf,
     pub(crate) readonly: bool,
@@ -119,6 +142,10 @@ impl Store {
         };
         ret._ensure_created()?;
         Ok(ret)
+    }
+
+    pub(crate) fn clone_repo(&self, repo: &str, rev: &str) -> anyhow::Result<String> {
+        anyhow::bail!("not implemented!");
     }
 
     pub(crate) fn mark_config_used(&self, path: &str) -> anyhow::Result<()> {
