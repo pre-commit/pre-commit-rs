@@ -38,7 +38,7 @@ fn _unpack_option(t: &syn::Type) -> Option<&syn::Type> {
 
 fn _get_attr<'a>(f: &'a syn::Field, name: &str) -> Option<&'a syn::Attribute> {
     for attr in &f.attrs {
-        if let Some(ident) = attr.path.get_ident() {
+        if let Some(ident) = attr.path().get_ident() {
             if ident == name {
                 return Some(attr);
             }

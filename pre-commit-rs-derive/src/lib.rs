@@ -80,7 +80,7 @@ pub fn make_config_hook(
 fn _pre_commit_env_vars(field: &syn::Field) -> Vec<String> {
     let mut ret: Vec<String> = Vec::new();
     for attr in &field.attrs {
-        if let Some(ident) = attr.path.get_ident() {
+        if let Some(ident) = attr.path().get_ident() {
             if ident == "pre_commit_env_var" {
                 let s = attr.parse_args::<syn::LitStr>().unwrap();
                 ret.push(s.value());
