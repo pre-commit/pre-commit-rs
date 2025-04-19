@@ -282,7 +282,7 @@ fn _chdir_path<P: AsRef<path::Path>>(p: P, chdir: &Chdir) -> String {
 fn _chdir_to_git_root(config: String) -> anyhow::Result<(String, gix::Repository, Option<Chdir>)> {
     let orig = env::current_dir()?;
     let repo = git::repo(&orig)?;
-    let new = repo.work_dir().unwrap();
+    let new = repo.workdir().unwrap();
 
     if orig == new {
         Ok((config, repo, None))

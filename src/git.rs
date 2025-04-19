@@ -33,7 +33,7 @@ impl CmdKv for process::Command {
 pub(crate) fn has_unstaged_config(repo: &gix::Repository, config: &str) -> anyhow::Result<bool> {
     // TODO: need `write-tree` / `diff`: Byron/gitoxide#301
     let retc = process::Command::new("git")
-        .arg_kv("-C", repo.work_dir().unwrap())
+        .arg_kv("-C", repo.workdir().unwrap())
         .args(["diff", "--quiet", "--no-ext-diff", config])
         .stdin(process::Stdio::null())
         .stdout(process::Stdio::null())
