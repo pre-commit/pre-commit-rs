@@ -9,7 +9,7 @@ edition = "2021"
 heck = "0.5.0"
 proc-macro2 = "1.0.93"
 quote = "1.0.38"
-syn = "2.0.98"
+syn = "3.0.6"
 
 [lib]
 proc-macro = true

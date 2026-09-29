@@ -10,6 +10,6 @@ repos:
     hooks:
     -   id: rustfmt
         name: rustfmt
-        entry: rustfmt --edition 2021
+        entry: rustfmt --edition 2024
         language: rust
         types: [rust]
