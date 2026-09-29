@@ -5,7 +5,7 @@ use std::process;
 pub(crate) fn repo<P: AsRef<path::Path>>(p: P) -> anyhow::Result<gix::Repository> {
     // TODO: handle Trust?
     let repo = gix::ThreadSafeRepository::discover_with_environment_overrides(p)?.to_thread_local();
-    if matches!(repo.kind(), gix::repository::Kind::Bare) {
+    if repo.is_bare() {
         anyhow::bail!("pre-commit needs a worktree, not a bare repo");
     }
     Ok(repo)

@@ -91,10 +91,10 @@ pub(crate) enum Repo {
 impl Cfgv for Repo {
     fn cfgv_validate(ctx: &mut Vec<String>, v: &serde_yaml::Value) -> anyhow::Result<Self> {
         let mut repo = None;
-        if let serde_yaml::Value::Mapping(m) = v {
-            if let Some(serde_yaml::Value::String(repo_s)) = m.get("repo") {
-                repo = Some(repo_s.as_str())
-            }
+        if let serde_yaml::Value::Mapping(m) = v
+            && let Some(serde_yaml::Value::String(repo_s)) = m.get("repo")
+        {
+            repo = Some(repo_s.as_str())
         }
         match repo {
             Some("local") => Ok(Self::Local(LocalRepo::cfgv_validate(ctx, v)?)),
