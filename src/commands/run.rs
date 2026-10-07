@@ -1,10 +1,10 @@
+use crate::PreCommitEnv;
+use crate::Run;
+use crate::Stage;
 use crate::env_ext;
 use crate::git;
 use crate::staged_files_only;
 use crate::store;
-use crate::PreCommitEnv;
-use crate::Run;
-use crate::Stage;
 
 pub(crate) fn cmd(
     config: String,
