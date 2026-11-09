@@ -20,5 +20,5 @@ cfgv = { path = "cfgv" }
 cfgv-derive = { path = "cfgv-derive" }
 pre-commit-rs-derive = { path = "pre-commit-rs-derive" }
 pathdiff = "0.2.3"
-gix = "0.88.0"
+gix = "0.90.0"
 bstr = "1.12.0"

@@ -72,7 +72,7 @@ impl<'a> IntentToAdd<'a> {
             }
         }
         if !info.is_empty() {
-            idx.write(Default::default()).map_err(|e| e.into_error())?;
+            idx.write(Default::default())?;
             Ok(Some(IntentToAdd { repo, info }))
         } else {
             Ok(None)
